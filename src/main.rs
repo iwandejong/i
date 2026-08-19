@@ -8,16 +8,16 @@ use config::Config;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-/// cdz — fuzzy, recursive directory jumper.
+/// i — fuzzy, recursive directory jumper.
 ///
 /// Fuzzy-searches recursively under the current directory (or a navigated
 /// root — "../" to go up, "~/" for home, "/" for filesystem root) and
 /// prints matching paths, one per line, best match first. A shell wrapper
 /// uses this to `cd` into the top match, or to drive tab-completion.
 #[derive(Parser, Debug)]
-#[command(name = "cdz", version)]
+#[command(name = "i", version)]
 struct Args {
-    /// Fuzzy query, e.g. `cdz ../robofuel`
+    /// Fuzzy query, e.g. `i ../robofuel`
     query: Option<String>,
 
     /// Print up to 5 matches instead of just the best one. Used for shell
@@ -33,7 +33,7 @@ fn main() -> ExitCode {
     let cwd = match std::env::current_dir() {
         Ok(d) => d,
         Err(e) => {
-            eprintln!("cdz: couldn't read current directory: {e}");
+            eprintln!("i: couldn't read current directory: {e}");
             return ExitCode::FAILURE;
         }
     };
@@ -71,7 +71,7 @@ fn main() -> ExitCode {
     if matches.is_empty() {
         // Nothing left to fuzzy-search (e.g. the resolved root has no
         // subdirectories) — land on the root itself rather than failing,
-        // so a fully-typed path like "cdz/test/t2/" still cd's there.
+        // so a fully-typed path like "test/t2/" still cd's there.
         if query.is_empty() {
             println!("{nav_prefix}");
             return ExitCode::SUCCESS;

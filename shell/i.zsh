@@ -1,7 +1,7 @@
-# cdz — fuzzy recursive cd, scoped to your current directory.
+# i — fuzzy recursive cd, scoped to your current directory.
 #
 # Source this from your ~/.zshrc:
-#   source /path/to/cdz.zsh
+#   source /path/to/i.zsh
 #
 # Then just run:
 #   i test         # cd to the best fuzzy match for "test" under $PWD
@@ -10,8 +10,9 @@
 #   i -2           # cd up 2 directories (../..), same idea as pushd -N
 #
 # Bind it to whatever name you like — "i" here to keep it a one-key reach.
-# `cdz` itself only prints matching paths on stdout; it never touches your
-# shell's directory on its own, which is why this wrapper exists.
+# The underlying `i` binary only prints matching paths on stdout; it never
+# touches your shell's directory on its own, which is why this wrapper
+# exists.
 
 i() {
   # `i` alone — same as plain `cd`: go home.
@@ -37,7 +38,7 @@ i() {
   fi
 
   local dest
-  dest="$(command cdz "$@")"
+  dest="$(command i "$@")"
   local rc=$?
   if [ $rc -eq 0 ] && [ -n "$dest" ]; then
     cd "$dest" || return $?
@@ -54,7 +55,7 @@ i() {
 # which zsh's lister escapes/shows as "^[[..." instead of rendering).
 _i() {
   local -a values
-  values=(${(f)"$(command cdz --complete -- "$PREFIX" 2>/dev/null)"})
+  values=(${(f)"$(command i --complete -- "$PREFIX" 2>/dev/null)"})
   values=(${values:#})  # drop any blank lines — an empty candidate would
                          # otherwise get auto-accepted, wiping what you typed
   (( $#values )) || return 1

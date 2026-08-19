@@ -1,5 +1,5 @@
 [package]
-name = "cdz"
+name = "i"
 version = "0.1.0"
 edition = "2021"
 description = "Fuzzy, recursive @-style directory jumper for the shell"
@@ -10,7 +10,7 @@ keywords = ["cd", "fuzzy", "shell", "cli", "navigation"]
 categories = ["command-line-utilities"]
 
 [[bin]]
-name = "cdz"
+name = "i"
 path = "src/main.rs"
 
 [dependencies]

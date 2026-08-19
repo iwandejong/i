@@ -31,16 +31,16 @@ jobs:
 
       - name: Package
         run: |
-          name="cdz-${{ matrix.target }}"
+          name="i-${{ matrix.target }}"
           mkdir "$name"
-          cp "target/${{ matrix.target }}/release/cdz" "$name/"
-          cp README.md LICENSE shell/cdz.zsh "$name/"
+          cp "target/${{ matrix.target }}/release/i" "$name/"
+          cp README.md LICENSE shell/i.zsh "$name/"
           tar czf "$name.tar.gz" "$name"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cdz-${{ matrix.target }}
-          path: cdz-${{ matrix.target }}.tar.gz
+          name: i-${{ matrix.target }}
+          path: i-${{ matrix.target }}.tar.gz
 
   release:
     needs: build

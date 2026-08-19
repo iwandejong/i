@@ -19,14 +19,15 @@ curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
 ---
 
 ```sh
-~/Downloads ❯ i cdz/test/t2
-~/Downloads/cdz/test/t2 ❯
+~/Downloads/i ❯ i test/t2
+~/Downloads/i/test/t2 ❯
 ```
 
-The shell command is `i`; the engine behind it is a small Rust binary called
-`cdz` (this repo's crate name, and what `i` shells out to). Inspired by the
-`@`-mention picker in [pi](https://github.com/earendil-works/pi), but scoped
-and navigable the way a `cd` replacement needs to be.
+`i` is both the shell command and the Rust binary behind it — the shell
+function shells out to the real `i` executable via `command i` so the two
+don't recurse into each other. Inspired by the `@`-mention picker in
+[pi](https://github.com/earendil-works/pi), but scoped and navigable the way
+a `cd` replacement needs to be.
 
 ## Why
 
@@ -64,12 +65,12 @@ Then restart your shell (or `source ~/.zshrc`) and you're done.
 
 **Prebuilt binary** — grab the tarball for your platform from the
 [latest release](https://github.com/iwandejong/i/releases/latest). Each one
-bundles the `cdz` binary plus `cdz.zsh` (the shell wrapper, see below):
+bundles the `i` binary plus `i.zsh` (the shell wrapper, see below):
 
 ```sh
-tar xzf cdz-<target>.tar.gz
-cp cdz-<target>/cdz ~/.local/bin/cdz     # put it on your $PATH
-# cdz-<target>/cdz.zsh is what you'll `source` below
+tar xzf i-<target>.tar.gz
+cp i-<target>/i ~/.local/bin/i     # put it on your $PATH
+# i-<target>/i.zsh is what you'll `source` below
 ```
 
 **From source** — requires Rust (stable, 1.75+):
@@ -78,7 +79,7 @@ cp cdz-<target>/cdz ~/.local/bin/cdz     # put it on your $PATH
 git clone https://github.com/iwandejong/i.git
 cd i
 cargo build --release
-cp target/release/cdz ~/.local/bin/cdz   # put it on your $PATH
+cp target/release/i ~/.local/bin/i   # put it on your $PATH
 ```
 
 The binary is a single static-ish executable (~1.2 MB).
@@ -87,13 +88,13 @@ The binary is a single static-ish executable (~1.2 MB).
 
 ## Shell integration
 
-`cdz` itself only *prints* matching paths to stdout — it can't change your
-shell's working directory on its own (no subprocess can). `install.sh`
-handles this automatically for zsh; to do it by hand:
+The `i` binary itself only *prints* matching paths to stdout — it can't
+change your shell's working directory on its own (no subprocess can).
+`install.sh` handles this automatically for zsh; to do it by hand:
 
 ```sh
 # ~/.zshrc
-source /path/to/i/shell/cdz.zsh
+source /path/to/i/shell/i.zsh
 ```
 
 Then:
@@ -106,33 +107,35 @@ i te<TAB>      # see (and pick from) the top matches before committing
 i -2           # cd up 2 directories (../..)
 ```
 
-(Rename the `i` function in `shell/cdz.zsh` to whatever you'd rather type —
-`j`, `cx`, anything that isn't already taken.)
+(Rename the `i` function in `shell/i.zsh` to whatever you'd rather type —
+`j`, `cx`, anything that isn't already taken. The binary can stay named `i`
+either way; the shell function just calls it via `command i`.)
 
 Only a zsh wrapper is included; a bash version would be nearly identical
-(`i() { local d; d=$(cdz "$@") && [ $? -eq 0 ] && cd "$d"; }`, minus the
-completion widget).
+(`i() { local d; d=$(command i "$@") && [ $? -eq 0 ] && cd "$d"; }`, minus
+the completion widget).
 
 ## How it works
 
-There's no full-screen picker UI — `i` runs `cdz`, which prints its best
-match(es) and exits; the shell wrapper `cd`s to whatever came back.
+There's no full-screen picker UI — the `i` shell function runs the `i`
+binary, which prints its best match(es) and exits; the wrapper `cd`s to
+whatever came back.
 
-- **Plain `i <query>`** — `cdz` prints its single top-ranked match, the
+- **Plain `i <query>`** — the binary prints its single top-ranked match, the
   wrapper `cd`s straight there.
-- **`i <query><TAB>`** — `cdz --complete` prints up to 5 ranked candidates,
+- **`i <query><TAB>`** — `i --complete` prints up to 5 ranked candidates,
   and zsh's own completion system turns them into a real, cyclable menu
   (`Tab`/arrows to move through it, `Enter` accepts *and* runs in one press).
   Matched characters are highlighted in the listing as you type, even when
   they're non-contiguous in the result (true fuzzy matches, not just
   substrings).
-- **A fully-typed, unambiguous path** (e.g. `i cdz/test/t2`) resolves and
-  `cd`s there directly — no menu, no fuzzy noise mixed in.
+- **A fully-typed, unambiguous path** (e.g. `i test/t2`) resolves and `cd`s
+  there directly — no menu, no fuzzy noise mixed in.
 
 <details>
 <summary><strong>Config</strong></summary>
 
-Optional JSON config at `~/.config/cdz/config.json` (all fields optional,
+Optional JSON config at `~/.config/i/config.json` (all fields optional,
 shown here with defaults):
 
 ```json
@@ -179,14 +182,14 @@ navigation.
 ```
 src/
   main.rs     — CLI entry (clap), wires config + walker + search together
-  config.rs   — loads ~/.config/cdz/config.json, defaults
+  config.rs   — loads ~/.config/i/config.json, defaults
   pathnav.rs  — parses typed text into (resolved root, fuzzy query)
   walker.rs   — recursive directory walk with prune-list + safety caps
   search.rs   — fuzzy scoring, sorting, exact-match and depth preference
 tests/
   walker_smoke.rs — confirms excludes prune subtrees and deep dirs still surface
 shell/
-  cdz.zsh     — the `i` wrapper function that actually cd's, plus completion
+  i.zsh       — the `i` wrapper function that actually cd's, plus completion
 install.sh    — one-command installer (prebuilt binary + shell integration)
 ```
 
@@ -197,7 +200,7 @@ install.sh    — one-command installer (prebuilt binary + shell integration)
 
 - No frecency (most-recently/most-often visited dirs ranked higher) —
   everything is pure fuzzy score today. Would be a nice v2 (a small
-  `~/.local/share/cdz/frecency.json` keyed by absolute path).
+  `~/.local/share/i/frecency.json` keyed by absolute path).
 - No `.gitignore` awareness — exclusion is the flat `excludes` name list
   only. Could add real `.gitignore` parsing per-subtree later if the noise
   becomes annoying, but it adds real complexity for a tool that's meant to

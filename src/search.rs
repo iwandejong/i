@@ -23,7 +23,7 @@ pub fn score_and_sort(root: &std::path::Path, entries: &[PathBuf], query: &str) 
             let score = if query.is_empty() {
                 0
             } else if rel_str == query {
-                // Exact path match (e.g. "cdz/test/t2") — always wins over
+                // Exact path match (e.g. "test/t2") — always wins over
                 // fuzzy noise, no matter how deep or how the scorer would
                 // otherwise rank it.
                 i64::MAX

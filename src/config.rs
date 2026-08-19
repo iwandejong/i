@@ -39,7 +39,7 @@ impl Config {
     pub fn config_path() -> PathBuf {
         dirs::config_dir()
             .unwrap_or_else(|| PathBuf::from("."))
-            .join("cdz")
+            .join("i")
             .join("config.json")
     }
 
@@ -50,7 +50,7 @@ impl Config {
                 Ok(cfg) => cfg,
                 Err(e) => {
                     eprintln!(
-                        "cdz: failed to parse {}: {} — using defaults",
+                        "i: failed to parse {}: {} — using defaults",
                         path.display(),
                         e
                     );
