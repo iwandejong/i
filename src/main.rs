@@ -28,11 +28,29 @@ struct Args {
     /// tab-completion.
     #[arg(long)]
     complete: bool,
+
+    /// Print the effective config (defaults merged with your config.json,
+    /// if any) as JSON and exit. Creates a starter config.json on first
+    /// run, same as any other invocation.
+    #[arg(long)]
+    config: bool,
 }
 
 fn main() -> ExitCode {
     let args = Args::parse();
     let cfg = Config::load();
+
+    if args.config {
+        println!("# {}", Config::config_path().display());
+        match serde_json::to_string_pretty(&cfg) {
+            Ok(json) => println!("{json}"),
+            Err(e) => {
+                eprintln!("i: couldn't serialize config: {e}");
+                return ExitCode::FAILURE;
+            }
+        }
+        return ExitCode::SUCCESS;
+    }
 
     let cwd = match std::env::current_dir() {
         Ok(d) => d,

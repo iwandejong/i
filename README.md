@@ -96,10 +96,12 @@ binary can stay named `i` either way, since the wrapper calls it via
 <summary><strong>Config</strong></summary>
 
 Optional JSON config, all fields optional (a partial file only overrides
-what it sets, the rest falls back to defaults), shown here with defaults.
-Location follows the platform config dir + `i/config.json` — that's
-`~/Library/Application Support/i/config.json` on macOS, `~/.config/i/config.json`
-on Linux:
+what it sets, the rest falls back to defaults). A lean starter file (`{}`)
+is created automatically on first run — location follows the platform
+config dir + `i/config.json`, that's `~/Library/Application Support/i/config.json`
+on macOS, `~/.config/i/config.json` on Linux. Run `i --config` to print the
+effective config (defaults merged with your overrides) and where the file
+lives. Shown below with defaults:
 
 ```json
 {

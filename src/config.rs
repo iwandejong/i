@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(default)]
@@ -60,8 +60,11 @@ impl Config {
     }
 
     pub fn load() -> Self {
-        let path = Self::config_path();
-        match std::fs::read_to_string(&path) {
+        Self::load_from(&Self::config_path())
+    }
+
+    fn load_from(path: &Path) -> Self {
+        match std::fs::read_to_string(path) {
             Ok(contents) => match serde_json::from_str::<Config>(&contents) {
                 Ok(cfg) => cfg,
                 Err(e) => {
@@ -73,7 +76,20 @@ impl Config {
                     Config::default()
                 }
             },
-            Err(_) => Config::default(),
+            Err(_) => {
+                // No config yet — write a lean starter file (just "{}", so
+                // every field still comes from Config::default() via
+                // #[serde(default)]) rather than dumping the full default
+                // struct. That way future default changes in a new version
+                // of `i` keep applying instead of getting frozen the moment
+                // this file was created. Best-effort: an unwritable config
+                // dir shouldn't stop the tool from working.
+                if let Some(parent) = path.parent() {
+                    let _ = std::fs::create_dir_all(parent);
+                }
+                let _ = std::fs::write(path, "{}\n");
+                Config::default()
+            }
         }
     }
 }
@@ -118,5 +134,37 @@ mod tests {
         assert_eq!(parsed.include_hidden, original.include_hidden);
         assert_eq!(parsed.max_depth, original.max_depth);
         assert_eq!(parsed.max_entries, original.max_entries);
+    }
+
+    #[test]
+    fn missing_config_creates_lean_starter_file() {
+        let path = std::env::temp_dir()
+            .join("i_config_test_missing")
+            .join("config.json");
+        let _ = std::fs::remove_file(&path);
+
+        let cfg = Config::load_from(&path);
+        assert_eq!(cfg.excludes, Config::default().excludes);
+
+        // The file on disk should be lean ("{}"), not a full dump of every
+        // default field — so a future default change still applies.
+        let written = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(written.trim(), "{}");
+
+        std::fs::remove_dir_all(path.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn existing_config_is_not_overwritten() {
+        let path = std::env::temp_dir()
+            .join("i_config_test_existing")
+            .join("config.json");
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(&path, r#"{"include_hidden": true}"#).unwrap();
+
+        let cfg = Config::load_from(&path);
+        assert!(cfg.include_hidden);
+
+        std::fs::remove_dir_all(path.parent().unwrap()).unwrap();
     }
 }
