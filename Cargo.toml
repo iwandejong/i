@@ -1,0 +1,27 @@
+[package]
+name = "cdz"
+version = "0.1.0"
+edition = "2021"
+description = "Fuzzy, recursive @-style directory jumper for the shell"
+license = "MIT"
+repository = "https://github.com/iwandejong/i"
+readme = "README.md"
+keywords = ["cd", "fuzzy", "shell", "cli", "navigation"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "cdz"
+path = "src/main.rs"
+
+[dependencies]
+fuzzy-matcher = "0.3"
+dirs = "5"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+clap = { version = "=4.4.18", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
