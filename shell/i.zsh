@@ -21,6 +21,13 @@ i() {
     return 0
   fi
 
+  # Meta flags (--help, --version, -h, -V) print info and exit 0 — that
+  # would otherwise be mistaken for a successful match and fed to `cd`.
+  # Just pass them straight through.
+  case "$1" in
+    --help|-h|--version|-V) command i "$@"; return $? ;;
+  esac
+
   # `i -N` — jump straight up N directories, no fuzzy search involved.
   if [ $# -eq 1 ] && [[ "$1" =~ ^-[0-9]+$ ]]; then
     local n=${1#-}
