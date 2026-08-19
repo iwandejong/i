@@ -77,18 +77,26 @@ impl Config {
                 }
             },
             Err(_) => {
-                // No config yet — write a lean starter file (just "{}", so
-                // every field still comes from Config::default() via
-                // #[serde(default)]) rather than dumping the full default
-                // struct. That way future default changes in a new version
-                // of `i` keep applying instead of getting frozen the moment
-                // this file was created. Best-effort: an unwritable config
-                // dir shouldn't stop the tool from working.
+                // No config yet — write a lean starter file showing the
+                // scalar knobs someone might actually want to tweak, but
+                // deliberately omitting `excludes` (so a future default
+                // change to that list still applies instead of getting
+                // frozen the moment this file was created — override it
+                // explicitly if you want your own list). Best-effort: an
+                // unwritable config dir shouldn't stop the tool working.
                 if let Some(parent) = path.parent() {
                     let _ = std::fs::create_dir_all(parent);
                 }
-                let _ = std::fs::write(path, "{}\n");
-                Config::default()
+                let defaults = Config::default();
+                let starter = serde_json::json!({
+                    "include_hidden": defaults.include_hidden,
+                    "max_depth": defaults.max_depth,
+                    "max_entries": defaults.max_entries,
+                });
+                if let Ok(text) = serde_json::to_string_pretty(&starter) {
+                    let _ = std::fs::write(path, text + "\n");
+                }
+                defaults
             }
         }
     }
@@ -146,10 +154,13 @@ mod tests {
         let cfg = Config::load_from(&path);
         assert_eq!(cfg.excludes, Config::default().excludes);
 
-        // The file on disk should be lean ("{}"), not a full dump of every
-        // default field — so a future default change still applies.
+        // The file on disk should show the scalar knobs but omit the noisy
+        // `excludes` array, so a future default change to it still applies.
         let written = std::fs::read_to_string(&path).unwrap();
-        assert_eq!(written.trim(), "{}");
+        assert!(written.contains("max_depth"));
+        assert!(written.contains("max_entries"));
+        assert!(written.contains("include_hidden"));
+        assert!(!written.contains("excludes"));
 
         std::fs::remove_dir_all(path.parent().unwrap()).unwrap();
     }

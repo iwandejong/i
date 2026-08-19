@@ -96,12 +96,15 @@ binary can stay named `i` either way, since the wrapper calls it via
 <summary><strong>Config</strong></summary>
 
 Optional JSON config, all fields optional (a partial file only overrides
-what it sets, the rest falls back to defaults). A lean starter file (`{}`)
-is created automatically on first run — location follows the platform
-config dir + `i/config.json`, that's `~/Library/Application Support/i/config.json`
-on macOS, `~/.config/i/config.json` on Linux. Run `i --config` to print the
-effective config (defaults merged with your overrides) and where the file
-lives. Shown below with defaults:
+what it sets, the rest falls back to defaults). A lean starter file with
+just the scalar knobs (`include_hidden`, `max_depth`, `max_entries`) is
+created automatically on first run — `excludes` is deliberately left out of
+it so a future default change to that list still applies; add it yourself
+if you want to override it. Location follows the platform config dir +
+`i/config.json`, that's `~/Library/Application Support/i/config.json` on
+macOS, `~/.config/i/config.json` on Linux. Run `i --config` to print the
+full effective config (defaults merged with your overrides) and where the
+file lives. Shown below with defaults:
 
 ```json
 {
