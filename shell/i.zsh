@@ -84,7 +84,11 @@ _i() {
   else
     zstyle -d ':completion:*:*:i:*' list-colors
   fi
-  compadd -l -Q -U -a values
+  # -S '' suppresses zsh's default trailing space after an accepted match
+  # (it assumes a completed word means "argument finished"). Without it,
+  # typing `/` right after accepting a candidate like "Studio/stl" lands a
+  # space before the `/` instead of extending the path.
+  compadd -l -Q -U -S '' -a values
   # Candidates are fuzzy matches, not prefix-related to what you typed, so
   # they rarely share a common prefix with each other. Without this, zsh's
   # first Tab tries to insert that (empty) common prefix before showing a
