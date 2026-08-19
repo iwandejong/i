@@ -33,7 +33,18 @@ and navigable the way a `cd` replacement needs to be:
 
 ## Install
 
-Requires Rust (stable, 1.75+).
+**Prebuilt binary (no Rust required)** — grab the tarball for your platform
+from the [latest release](https://github.com/iwandejong/i/releases/latest)
+(macOS x86_64/arm64, Linux x86_64). Each one bundles the `cdz` binary plus
+`cdz.zsh` (the shell wrapper from the next section):
+
+```sh
+tar xzf cdz-<target>.tar.gz
+cp cdz-<target>/cdz ~/.local/bin/cdz     # put it on your $PATH
+# cdz-<target>/cdz.zsh is what you'll `source` below
+```
+
+**From source** — requires Rust (stable, 1.75+):
 
 ```sh
 git clone https://github.com/iwandejong/i.git
