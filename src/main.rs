@@ -12,8 +12,12 @@ use std::process::ExitCode;
 ///
 /// Fuzzy-searches recursively under the current directory (or a navigated
 /// root — "../" to go up, "~/" for home, "/" for filesystem root) and
-/// prints matching paths, one per line, best match first. A shell wrapper
-/// uses this to `cd` into the top match, or to drive tab-completion.
+/// prints matching paths, one per line, best match first.
+///
+/// This binary only prints — it never changes your shell's directory
+/// itself (no subprocess can). It needs the shell wrapper in shell/i.zsh
+/// sourced from your ~/.zshrc for `i <query>` to actually `cd` you there;
+/// see https://github.com/iwandejong/i#shell-integration.
 #[derive(Parser, Debug)]
 #[command(name = "i", version)]
 struct Args {
