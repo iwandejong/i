@@ -23,7 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
 ```sh
 i              # cd $HOME, same as plain `cd`
 i test         # cd to the best fuzzy match for "test" under $PWD
-i ../robofuel  # scoped one level up first, then fuzzy-searching "robofuel"
+i ../project   # scoped one level up first, then fuzzy-searching "project"
 i te<TAB>      # cyclable menu of the top matches, non-contiguous chars highlighted
 i -2           # cd up 2 directories (../..)
 ```
@@ -95,8 +95,11 @@ binary can stay named `i` either way, since the wrapper calls it via
 <details>
 <summary><strong>Config</strong></summary>
 
-Optional JSON config at `~/.config/i/config.json` (all fields optional,
-shown with defaults):
+Optional JSON config, all fields optional (a partial file only overrides
+what it sets, the rest falls back to defaults), shown here with defaults.
+Location follows the platform config dir + `i/config.json` — that's
+`~/Library/Application Support/i/config.json` on macOS, `~/.config/i/config.json`
+on Linux:
 
 ```json
 {
@@ -138,7 +141,7 @@ navigation.
 ```
 src/
   main.rs     — CLI entry (clap), wires config + walker + search together
-  config.rs   — loads ~/.config/i/config.json, defaults
+  config.rs   — loads i/config.json from the platform config dir, defaults
   pathnav.rs  — parses typed text into (resolved root, fuzzy query)
   walker.rs   — recursive directory walk with prune-list + safety caps
   search.rs   — fuzzy scoring, sorting, exact-match and depth preference
@@ -165,7 +168,7 @@ install.sh    — one-command installer (prebuilt binary + shell integration)
 
 ## Contributing
 
-Issues and PRs welcome — run `cargo test` first.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

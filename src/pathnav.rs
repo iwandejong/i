@@ -6,12 +6,12 @@ use std::path::{Path, PathBuf};
 /// exact existing child directory name) and return the directory those
 /// segments resolve to, plus whatever's left over to fuzzy-match.
 ///
-/// Examples (starting root = /home/iwan/projects/robofuel):
-///   "test"        -> (robofuel, "test")
-///   "../test"     -> (projects, "test")
+/// Examples (starting root = /home/iwan/code/project):
+///   "test"        -> (project, "test")
+///   "../test"     -> (code, "test")
 ///   "../../test"  -> (iwan, "test")
-///   "../"         -> (projects, "")
-///   "src/comp"    -> (robofuel/src, "comp")   [only if "src" exists]
+///   "../"         -> (code, "")
+///   "src/comp"    -> (project/src, "comp")   [only if "src" exists]
 ///   "~/Doc"       -> (/home/iwan, "Doc")
 ///   "/etc/ngi"    -> (/etc, "ngi")
 pub fn resolve(start_root: &Path, typed: &str) -> (PathBuf, String) {
@@ -35,16 +35,15 @@ pub fn resolve(start_root: &Path, typed: &str) -> (PathBuf, String) {
         rest = stripped;
     }
 
-    loop {
-        let slash_pos = match rest.find('/') {
-            Some(p) => p,
-            None => break, // last segment in progress — this is the query
-        };
+    while let Some(slash_pos) = rest.find('/') {
         let segment = &rest[..slash_pos];
 
         let next_root = match segment {
             "" | "." => root.clone(),
-            ".." => root.parent().map(|p| p.to_path_buf()).unwrap_or(root.clone()),
+            ".." => root
+                .parent()
+                .map(|p| p.to_path_buf())
+                .unwrap_or(root.clone()),
             name => {
                 let candidate = root.join(name);
                 if candidate.is_dir() {

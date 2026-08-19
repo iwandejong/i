@@ -19,7 +19,10 @@ fn excludes_pruned_and_deep_dirs_still_found() {
     let excludes = vec!["node_modules".to_string(), ".git".to_string()];
     let entries = walker::build_index(&root, &excludes, false, None, 50_000);
 
-    let strs: Vec<String> = entries.iter().map(|p| p.to_string_lossy().to_string()).collect();
+    let strs: Vec<String> = entries
+        .iter()
+        .map(|p| p.to_string_lossy().to_string())
+        .collect();
 
     // node_modules itself and everything under it must be pruned.
     assert!(!strs.iter().any(|s| s.contains("node_modules")));

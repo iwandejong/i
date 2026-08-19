@@ -17,7 +17,7 @@ use std::process::ExitCode;
 #[derive(Parser, Debug)]
 #[command(name = "i", version)]
 struct Args {
-    /// Fuzzy query, e.g. `i ../robofuel`
+    /// Fuzzy query, e.g. `i ../project`
     query: Option<String>,
 
     /// Print up to 5 matches instead of just the best one. Used for shell
