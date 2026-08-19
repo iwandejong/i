@@ -1,8 +1,22 @@
+<div align="center">
+
 # i
 
-A fuzzy, recursive `cd` replacement. Type a few letters, see matching
-directories several levels deep under wherever you currently are — not just
-the immediate children `cd`'s own tab-completion gives you.
+**A fuzzy, recursive `cd` replacement.**
+Type a few letters, land several directories deep — not just the immediate
+children `cd`'s own tab-completion gives you.
+
+[![License: MIT](https://img.shields.io/github/license/iwandejong/i)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/iwandejong/i)](https://github.com/iwandejong/i/releases/latest)
+[![Rust](https://img.shields.io/badge/rust-stable-orange)](https://www.rust-lang.org)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
+```
+
+</div>
+
+---
 
 ```sh
 ~/Downloads ❯ i cdz/test/t2
@@ -12,7 +26,9 @@ the immediate children `cd`'s own tab-completion gives you.
 The shell command is `i`; the engine behind it is a small Rust binary called
 `cdz` (this repo's crate name, and what `i` shells out to). Inspired by the
 `@`-mention picker in [pi](https://github.com/earendil-works/pi), but scoped
-and navigable the way a `cd` replacement needs to be:
+and navigable the way a `cd` replacement needs to be.
+
+## Why
 
 - **Scoped to your current directory by default.** Typing `test` searches
   recursively under `$PWD`, not your whole home directory.
@@ -33,10 +49,22 @@ and navigable the way a `cd` replacement needs to be:
 
 ## Install
 
-**Prebuilt binary (no Rust required)** — grab the tarball for your platform
-from the [latest release](https://github.com/iwandejong/i/releases/latest)
-(macOS x86_64/arm64, Linux x86_64). Each one bundles the `cdz` binary plus
-`cdz.zsh` (the shell wrapper from the next section):
+**One-liner (no Rust required)** — downloads the right prebuilt binary for
+your platform (macOS x86_64/arm64, Linux x86_64), installs it to
+`~/.local/bin`, and wires up shell integration for you:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
+```
+
+Then restart your shell (or `source ~/.zshrc`) and you're done.
+
+<details>
+<summary>Manual install, or building from source</summary>
+
+**Prebuilt binary** — grab the tarball for your platform from the
+[latest release](https://github.com/iwandejong/i/releases/latest). Each one
+bundles the `cdz` binary plus `cdz.zsh` (the shell wrapper, see below):
 
 ```sh
 tar xzf cdz-<target>.tar.gz
@@ -55,11 +83,13 @@ cp target/release/cdz ~/.local/bin/cdz   # put it on your $PATH
 
 The binary is a single static-ish executable (~1.2 MB).
 
-## Shell integration (required)
+</details>
+
+## Shell integration
 
 `cdz` itself only *prints* matching paths to stdout — it can't change your
-shell's working directory on its own (no subprocess can). Source the wrapper
-function so it actually `cd`s for you:
+shell's working directory on its own (no subprocess can). `install.sh`
+handles this automatically for zsh; to do it by hand:
 
 ```sh
 # ~/.zshrc
@@ -99,7 +129,8 @@ match(es) and exits; the shell wrapper `cd`s to whatever came back.
 - **A fully-typed, unambiguous path** (e.g. `i cdz/test/t2`) resolves and
   `cd`s there directly — no menu, no fuzzy noise mixed in.
 
-## Config
+<details>
+<summary><strong>Config</strong></summary>
 
 Optional JSON config at `~/.config/cdz/config.json` (all fields optional,
 shown here with defaults):
@@ -125,7 +156,10 @@ shown here with defaults):
   jump into a huge tree doesn't hang; you still get whatever it collected
   before hitting the cap.
 
-## How the path-navigation parsing works
+</details>
+
+<details>
+<summary><strong>How the path-navigation parsing works</strong></summary>
 
 See `src/pathnav.rs` (has unit tests) — each `/`-terminated segment you've
 typed is checked in order: `..` pops the root up one level, `~` (only as the
@@ -137,7 +171,10 @@ lets `../test` mean "go up one, then fuzzy-search test" while a query that
 merely *contains* a slash-like fuzzy term doesn't get misparsed as
 navigation.
 
-## Project layout
+</details>
+
+<details>
+<summary><strong>Project layout</strong></summary>
 
 ```
 src/
@@ -150,9 +187,13 @@ tests/
   walker_smoke.rs — confirms excludes prune subtrees and deep dirs still surface
 shell/
   cdz.zsh     — the `i` wrapper function that actually cd's, plus completion
+install.sh    — one-command installer (prebuilt binary + shell integration)
 ```
 
-## Known limitations / good next steps
+</details>
+
+<details>
+<summary><strong>Known limitations / good next steps</strong></summary>
 
 - No frecency (most-recently/most-often visited dirs ranked higher) —
   everything is pure fuzzy score today. Would be a nice v2 (a small
@@ -164,6 +205,9 @@ shell/
 - Symlinked directories are skipped outright (avoids cycles); could
   optionally follow with cycle detection later.
 - Only a zsh wrapper is included; bash/fish ports are welcome contributions.
+- No prebuilt Linux arm64 binary yet — build from source there.
+
+</details>
 
 ## Contributing
 
