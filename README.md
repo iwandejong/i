@@ -18,11 +18,6 @@ curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
 
 ---
 
-```sh
-~/Downloads/i ❯ i test/t2
-~/Downloads/i/test/t2 ❯
-```
-
 ## Usage
 
 ```sh
