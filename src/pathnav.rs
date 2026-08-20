@@ -102,9 +102,23 @@ mod tests {
 
     #[test]
     fn root_jump() {
+        // "/etc" isn't guaranteed to exist on every platform (e.g. Windows
+        // CI), so resolve segments against a real directory instead: a temp
+        // dir keyed by test name, matching walker.rs's fixture convention.
+        // resolve()'s leading-"/" handling maps to PathBuf::from("/"), which
+        // on Windows is a driveless root (resolved against the current
+        // drive) — so strip any drive prefix ("C:") before comparing.
+        let real_dir = std::env::temp_dir().join("i_pathnav_root_jump_fixture");
+        std::fs::create_dir_all(&real_dir).unwrap();
+        let forward = real_dir.to_str().unwrap().replace('\\', "/");
+        let rootless = match forward.split_once(':') {
+            Some((_, rest)) => rest.to_string(),
+            None => forward,
+        };
+
         let start = PathBuf::from("/a/b/c");
-        let (root, q) = resolve(&start, "/etc/ngi");
-        assert_eq!(root, PathBuf::from("/etc"));
+        let (root, q) = resolve(&start, &format!("{rootless}/ngi"));
+        assert_eq!(root, PathBuf::from(&rootless));
         assert_eq!(q, "ngi");
     }
 }
