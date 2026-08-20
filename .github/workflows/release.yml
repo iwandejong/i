@@ -42,7 +42,7 @@ jobs:
           name="i-${{ matrix.target }}"
           mkdir "$name"
           cp "target/${{ matrix.target }}/release/i" "$name/"
-          cp README.md LICENSE shell/i.zsh "$name/"
+          cp README.md LICENSE shell/i.zsh shell/i.bash "$name/"
           tar czf "$name.tar.gz" "$name"
 
       - uses: actions/upload-artifact@v4

@@ -49,6 +49,7 @@ mkdir -p "$BIN_DIR" "$SHARE_DIR"
 cp "$tmp/i-$target/i" "$BIN_DIR/i"
 chmod +x "$BIN_DIR/i"
 cp "$tmp/i-$target/i.zsh" "$SHARE_DIR/i.zsh"
+cp "$tmp/i-$target/i.bash" "$SHARE_DIR/i.bash"
 echo "Installed $BIN_DIR/i"
 
 case ":$PATH:" in
@@ -56,19 +57,21 @@ case ":$PATH:" in
   *) echo "Note: $BIN_DIR isn't on your PATH yet — add: export PATH=\"$BIN_DIR:\$PATH\"" ;;
 esac
 
-source_line="source \"$SHARE_DIR/i.zsh\""
 case "${SHELL:-}" in
-  */zsh)
-    rc="$HOME/.zshrc"
-    if [ -f "$rc" ] && grep -qF "$SHARE_DIR/i.zsh" "$rc" 2>/dev/null; then
-      echo "Shell integration already set up in $rc"
-    else
-      printf '\n# i — fuzzy recursive cd (https://github.com/%s)\n%s\n' "$REPO" "$source_line" >> "$rc"
-      echo "Added to $rc — restart your shell or run: source $rc"
-    fi
-    ;;
+  */zsh) rc="$HOME/.zshrc"; script="$SHARE_DIR/i.zsh" ;;
+  */bash) rc="$HOME/.bashrc"; script="$SHARE_DIR/i.bash" ;;
   *)
-    echo "Only zsh integration ships today. Add this to your shell rc file:"
-    echo "  $source_line"
+    echo "Only zsh/bash integration ships today. Add one of these to your shell rc file:"
+    echo "  source \"$SHARE_DIR/i.zsh\"   # zsh"
+    echo "  source \"$SHARE_DIR/i.bash\"  # bash"
+    exit 0
     ;;
 esac
+
+source_line="source \"$script\""
+if [ -f "$rc" ] && grep -qF "$script" "$rc" 2>/dev/null; then
+  echo "Shell integration already set up in $rc"
+else
+  printf '\n# i — fuzzy recursive cd (https://github.com/%s)\n%s\n' "$REPO" "$source_line" >> "$rc"
+  echo "Added to $rc — restart your shell or run: source $rc"
+fi

@@ -60,7 +60,7 @@ Restart your shell (or `source ~/.zshrc`) and you're done.
 
 **Prebuilt binary** — grab the tarball for your platform from the
 [latest release](https://github.com/iwandejong/i/releases/latest). Each one
-bundles the `i` binary plus `i.zsh` (the shell wrapper):
+bundles the `i` binary plus `i.zsh`/`i.bash` (the shell wrappers):
 
 ```sh
 tar xzf i-<target>.tar.gz
@@ -85,12 +85,18 @@ directory itself. `install.sh` wires this up automatically; by hand:
 ```sh
 # ~/.zshrc
 source /path/to/i/shell/i.zsh
+
+# or ~/.bashrc
+source /path/to/i/shell/i.bash
 ```
 
-Rename the `i` function in `shell/i.zsh` to whatever you'd rather type — the
-binary can stay named `i` either way, since the wrapper calls it via
-`command i`. Only zsh is supported; a bash version would be nearly identical
-(`i() { local d; d=$(command i "$@") && cd "$d"; }`, minus completion).
+Rename the `i` function in either wrapper to whatever you'd rather type —
+the binary can stay named `i` either way, since the wrapper calls it via
+`command i`. zsh and bash both ship; the bash version has plain-list
+`<TAB>` completion (no menu-select or fuzzy-char highlighting — bash's
+completion system doesn't support either). fish isn't supported, but a
+port would be straightforward: `function i; set d (command i $argv); and cd $d; end`,
+minus completion.
 
 <details>
 <summary><strong>Config</strong></summary>
@@ -154,6 +160,7 @@ tests/
   walker_smoke.rs — confirms excludes prune subtrees, deep dirs still surface
 shell/
   i.zsh       — the `i` wrapper function that actually cd's, plus completion
+  i.bash      — bash equivalent (plain-list completion, no menu-select)
 install.sh    — one-command installer (prebuilt binary + shell integration)
 ```
 
@@ -167,7 +174,7 @@ install.sh    — one-command installer (prebuilt binary + shell integration)
 - No `.gitignore` awareness — exclusion is the flat `excludes` list only.
 - Symlinked directories are skipped outright (avoids cycles).
 - No prebuilt Linux arm64 binary yet — build from source there.
-- Only zsh ships; bash/fish ports are welcome contributions.
+- zsh and bash ship; fish ports are welcome contributions.
 
 </details>
 
