@@ -106,9 +106,17 @@ mod tests {
         // CI), so resolve segments against a real directory instead: a temp
         // dir keyed by test name, matching walker.rs's fixture convention.
         // resolve()'s leading-"/" handling maps to PathBuf::from("/"), which
-        // on Windows is a driveless root (resolved against the current
-        // drive) — so strip any drive prefix ("C:") before comparing.
-        let real_dir = std::env::temp_dir().join("i_pathnav_root_jump_fixture");
+        // on Windows is a driveless root (resolved against the *current*
+        // drive) — so the fixture must live under the current drive too.
+        // std::env::temp_dir() is often on a different drive than the repo
+        // checkout (e.g. CI runs from D:\ while temp is on C:\), which made
+        // every segment fail to resolve as a real directory. Use
+        // current_dir()'s drive instead, then strip the drive prefix
+        // ("C:") before comparing.
+        let real_dir = std::env::current_dir()
+            .unwrap()
+            .join("target")
+            .join("i_pathnav_root_jump_fixture");
         std::fs::create_dir_all(&real_dir).unwrap();
         let forward = real_dir.to_str().unwrap().replace('\\', "/");
         let rootless = match forward.split_once(':') {
