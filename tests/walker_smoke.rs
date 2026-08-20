@@ -20,7 +20,7 @@ fn excludes_pruned_and_deep_dirs_still_found() {
 
     let strs: Vec<String> = entries
         .iter()
-        .map(|p| p.to_string_lossy().to_string())
+        .map(|p| p.to_string_lossy().replace('\\', "/"))
         .collect();
 
     // node_modules itself and everything under it must be pruned.
