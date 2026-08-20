@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +24,17 @@ jobs:
 
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y zsh
-      - run: zsh -n shell/i.zsh
-      - run: bash -n shell/i.bash
-      - run: sh -n install.sh
+      - if: runner.os != 'Windows'
+        run: zsh -n shell/i.zsh
+      - if: runner.os != 'Windows'
+        run: bash -n shell/i.bash
+      - if: runner.os != 'Windows'
+        run: sh -n install.sh
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $errors = $null
+          foreach ($f in "shell/i.ps1", "install.ps1") {
+            [System.Management.Automation.Language.Parser]::ParseFile($f, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+          }

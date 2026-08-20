@@ -45,27 +45,40 @@ unambiguous path resolves and `cd`s there directly, no fuzzy noise mixed in.
 
 ## Install
 
-**One-liner (no Rust required)** — downloads the right prebuilt binary
-(macOS x86_64/arm64, Linux x86_64), installs it to `~/.local/bin`, and wires
-up zsh integration:
+**One-liner (no Rust required, macOS/Linux)** — downloads the right prebuilt
+binary (macOS x86_64/arm64, Linux x86_64), installs it to `~/.local/bin`,
+and wires up zsh or bash integration:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/iwandejong/i/main/install.sh | sh
 ```
 
-Restart your shell (or `source ~/.zshrc`) and you're done.
+Restart your shell (or `source ~/.zshrc`/`~/.bashrc`) and you're done.
+
+**One-liner (Windows, PowerShell)** — same idea, installs to
+`~\.local\bin` and wires up your `$PROFILE`:
+
+```powershell
+irm https://raw.githubusercontent.com/iwandejong/i/main/install.ps1 | iex
+```
+
+Restart PowerShell (or `. $PROFILE`) and you're done.
 
 <details>
 <summary>Manual install, or building from source</summary>
 
 **Prebuilt binary** — grab the tarball for your platform from the
 [latest release](https://github.com/iwandejong/i/releases/latest). Each one
-bundles the `i` binary plus `i.zsh`/`i.bash` (the shell wrappers):
+bundles the `i` binary plus `i.zsh`/`i.bash`/`i.ps1` (the shell wrappers):
 
 ```sh
 tar xzf i-<target>.tar.gz
 cp i-<target>/i ~/.local/bin/i   # i-<target>/i.zsh is what you'll `source` below
 ```
+
+On Windows, `install.ps1` (above) does this for you; by hand, put `i.exe`
+somewhere on your `PATH` and dot-source `i.ps1` from your `$PROFILE` (see
+[Shell integration](#shell-integration) below).
 
 **From source** — requires Rust (stable, 1.75+):
 
@@ -80,23 +93,30 @@ cp target/release/i ~/.local/bin/i
 ## Shell integration
 
 The `i` binary only *prints* matching paths — it can't change your shell's
-directory itself. `install.sh` wires this up automatically; by hand:
+directory itself. `install.sh` wires this up automatically on macOS/Linux;
+by hand:
 
 ```sh
 # ~/.zshrc
 source /path/to/i/shell/i.zsh
 
-# or ~/.bashrc
+# ~/.bashrc
 source /path/to/i/shell/i.bash
 ```
 
-Rename the `i` function in either wrapper to whatever you'd rather type —
-the binary can stay named `i` either way, since the wrapper calls it via
-`command i`. zsh and bash both ship; the bash version has plain-list
-`<TAB>` completion (no menu-select or fuzzy-char highlighting — bash's
-completion system doesn't support either). fish isn't supported, but a
-port would be straightforward: `function i; set d (command i $argv); and cd $d; end`,
-minus completion.
+```powershell
+# $PROFILE
+. /path/to/i/shell/i.ps1
+```
+
+Rename the `i` function in any wrapper to whatever you'd rather type — the
+binary can stay named `i` either way, since the wrappers call it
+explicitly (`command i`, or `i.exe` in PowerShell, where a same-named
+function would otherwise call itself). zsh, bash, and PowerShell all ship;
+bash and PowerShell get plain-list `<TAB>` completion (no menu-select or
+fuzzy-char highlighting — neither completion system supports that). fish
+isn't supported, but a port would be straightforward:
+`function i; set d (command i $argv); and cd $d; end`, minus completion.
 
 <details>
 <summary><strong>Config</strong></summary>
@@ -108,7 +128,8 @@ created automatically on first run — `excludes` is deliberately left out of
 it so a future default change to that list still applies; add it yourself
 if you want to override it. Location follows the platform config dir +
 `i/config.json`, that's `~/Library/Application Support/i/config.json` on
-macOS, `~/.config/i/config.json` on Linux. Run `i --config` to print the
+macOS, `~/.config/i/config.json` on Linux, `%APPDATA%\i\config.json` on
+Windows. Run `i --config` to print the
 full effective config (defaults merged with your overrides) and where the
 file lives. Shown below with defaults:
 
@@ -161,7 +182,9 @@ tests/
 shell/
   i.zsh       — the `i` wrapper function that actually cd's, plus completion
   i.bash      — bash equivalent (plain-list completion, no menu-select)
-install.sh    — one-command installer (prebuilt binary + shell integration)
+  i.ps1       — PowerShell equivalent (plain-list completion, no menu-select)
+install.sh    — one-command installer for macOS/Linux (binary + shell integration)
+install.ps1   — one-command installer for Windows (binary + PowerShell integration)
 ```
 
 </details>
@@ -173,8 +196,8 @@ install.sh    — one-command installer (prebuilt binary + shell integration)
   today.
 - No `.gitignore` awareness — exclusion is the flat `excludes` list only.
 - Symlinked directories are skipped outright (avoids cycles).
-- No prebuilt Linux arm64 binary yet — build from source there.
-- zsh and bash ship; fish ports are welcome contributions.
+- No prebuilt Linux or Windows arm64 binary yet — build from source there.
+- zsh, bash, and PowerShell ship; fish ports are welcome contributions.
 
 </details>
 

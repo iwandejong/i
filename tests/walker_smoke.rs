@@ -2,14 +2,13 @@
 // deeply nested "test" dir is still found (the "deeper than this level"
 // requirement).
 use std::fs;
-use std::path::PathBuf;
 
 #[path = "../src/walker.rs"]
 mod walker;
 
 #[test]
 fn excludes_pruned_and_deep_dirs_still_found() {
-    let root = PathBuf::from("/tmp/i_playground");
+    let root = std::env::temp_dir().join("i_playground");
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(root.join("projectA/src/components")).unwrap();
     fs::create_dir_all(root.join("projectA/tests")).unwrap();
